@@ -1,0 +1,13 @@
+{
+  "name": "wikimedia-kafka-demo",
+  "version": "1.0.0",
+  "description": "Demostración de KEDA con stream de Wikimedia y Kafka",
+  "dependencies": {
+    "eventsource": "^2.0.2",
+    "kafkajs": "^2.2.4"
+  },
+  "scripts": {
+    "producer": "node producer.js",
+    "consumer": "node consumer.js"
+  }
+}

@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wikimedia-producer
+  namespace: wikimedia-demo
+spec:
+  replicas: 1
+  
+  selector:
+    matchLabels:
+      app: wikimedia-producer
+  template:
+    metadata:
+      labels:
+        app: wikimedia-producer
+    spec:
+      containers:
+      - name: producer
+        image: jouncato/wikimedia-kafka-producer:1.0
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "256Mi"
+        env:
+        - name: KAFKA_BROKERS
+          value: "my-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092"
+        - name: KAFKA_TOPIC
+          value: "wikimedia-topic"
+        - name: CLIENT_ID
+          value: "wikimedia-producer-1"
+        livenessProbe:
+          exec:
+            command:
+            - node
+            - -e
+            - "console.log('Liveness check')"
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          exec:
+            command:
+            - node
+            - -e
+            - "console.log('Readiness check')"
+          initialDelaySeconds: 10
+          periodSeconds: 10
+      restartPolicy: Always

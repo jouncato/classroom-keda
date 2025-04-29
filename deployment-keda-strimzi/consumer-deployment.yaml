@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wikimedia-consumer
+  namespace: wikimedia-demo
+spec:
+  replicas: 0  # Inicialmente 0, KEDA escalará según sea necesario
+  selector:
+    matchLabels:
+      app: wikimedia-consumer
+  template:
+    metadata:
+      labels:
+        app: wikimedia-consumer
+    spec:
+      containers:
+      - name: consumer
+        image: jouncato/wikimedia-kafka-consumer:1.0
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "256Mi"
+        env:
+        - name: KAFKA_BROKERS
+          value: "my-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092"
+        - name: KAFKA_TOPIC
+          value: "wikimedia-topic"
+        - name: CLIENT_ID
+          value: "wikimedia-consumer"
+        - name: CONSUMER_GROUP
+          value: "wikimedia-consumer-group"
+        - name: PROCESSING_TIME_MS
+          value: "500"
+        livenessProbe:
+          exec:
+            command:
+            - node
+            - -e
+            - "console.log('Liveness check')"
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          exec:
+            command:
+            - node
+            - -e
+            - "console.log('Readiness check')"
+          initialDelaySeconds: 10
+          periodSeconds: 10

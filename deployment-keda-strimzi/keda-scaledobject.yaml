@@ -1,0 +1,20 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: wikimedia-consumer-scaler
+  namespace: wikimedia-demo
+spec:
+  scaleTargetRef:
+    name: wikimedia-consumer
+  minReplicaCount: 0
+  maxReplicaCount: 10
+  pollingInterval: 15  # Verificar cada 15 segundos
+  cooldownPeriod: 30   # Esperar 30 segundos antes de escalar hacia abajo
+  triggers:
+  - type: kafka
+    metadata:
+      bootstrapServers: my-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092
+      consumerGroup: wikimedia-consumer-group
+      topic: wikimedia-topic
+      lagThreshold: "10"
+      offsetResetPolicy: latest
